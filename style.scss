@@ -10,6 +10,69 @@ body {
   font-family: "Nunito", sans-serif;
 }
 
+.modal {
+  max-width: 500px;
+  width: 80vw;
+  height: fit-content;
+  padding: 20px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: none;
+  outline: none;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+
+  .movie-div {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  @media (max-width: 500px) {
+    .movie-div {
+      flex-direction: column;
+    }
+  }
+
+  & .close-button {
+    cursor: pointer;
+    font-size: 25px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+
+  & .modal-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    .img-movies {
+      width: 400px;
+      height: 200px;
+      object-fit: contain;
+      margin-left: -25px;
+      border-radius: 5px;
+    }
+
+    @media (max-width: 475px) {
+      .img-movies {
+        margin-left: -75px;
+        scale: 0.7;
+      }
+    }
+
+    .img-people {
+      height: 200px;
+      width: 200px;
+      object-fit: contain;
+      margin-inline: -35px;
+    }
+  }
+}
+
 .navbar {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -64,6 +127,7 @@ body {
   padding: 10px;
   width: $movie-container-width;
   height: fit-content;
+  cursor: pointer;
 }
 
 .movie-img {

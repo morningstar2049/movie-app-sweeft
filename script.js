@@ -1,3 +1,5 @@
+import { Store } from "./store/store.js";
+
 const API_TVSHOWS_URL =
   "https://api.themoviedb.org/3/discover/tv?api_key=dbfdeb12dc114137c3eeb9635154dd89&language=en-US&sort_by=popularity.desc&include_video=false&page=1&append_to_response=videos";
 
@@ -12,7 +14,10 @@ const movies = document.querySelector(".movies");
 const tvShows = document.querySelector(".tvShows");
 const people = document.querySelector(".people");
 const mainContent = document.querySelector(".main-content");
+const modal = document.querySelector(".modal");
 let currentPage = "";
+let fetchedData;
+let currentItemIndex;
 
 initialRender();
 registerListenres();
@@ -39,6 +44,7 @@ async function renderContent(page) {
 
   const response = await fetch(url);
   const data = await response.json();
+  fetchedData = data.results;
 
   data.results.forEach((item) => {
     const itemContainer = document.createElement("div");
@@ -63,7 +69,88 @@ async function renderContent(page) {
   
     `;
     mainContent.append(itemContainer);
+
+    itemContainer.addEventListener("click", (e) => {
+      const mainArray = Array.from(mainContent.childNodes);
+      currentItemIndex = mainArray.indexOf(e.currentTarget);
+      showModal();
+    });
   });
 
   currentPage = page;
+}
+
+const modalState = new Store(false);
+
+const setModalState = modalState.useState((newState) => {
+  if (newState) {
+    modal.showModal();
+    const itemData = fetchedData[currentItemIndex];
+    modal.innerHTML = `
+    <div class="close-button">
+      <i class="fa-regular fa-circle-xmark"></i>
+    </div>
+    <div class="modal-content">
+      <div><strong>${
+        currentPage === "movies" ? itemData.title : itemData.name
+      }</strong></div>
+      <img src=${
+        itemData.backdrop_path !== null
+          ? `https://image.tmdb.org/t/p/w300${
+              currentPage === "people"
+                ? itemData.profile_path
+                : itemData.backdrop_path
+            }`
+          : "./assets/noimage.png"
+      } alt="img" class=${
+      currentPage === "people" ? "img-people" : "img-movies"
+    } />
+      ${currentPage !== "people" ? `<div>${itemData.overview}</div>` : ""}
+      ${
+        currentPage !== "people"
+          ? `<div><strong>Release Date: </strong> ${
+              currentPage === "movies"
+                ? itemData.release_date
+                : itemData.first_air_date
+            }</div>`
+          : ""
+      }
+      <p class="vote-average">Average Score : ${
+        currentPage === "people" ? itemData.popularity : itemData.vote_average
+      } 
+      <i class="fa-solid fa-star"></i>
+      </p>
+      ${currentPage === "people" ? "<strong>Known For :</strong>" : ""}
+      
+    </div>
+    `;
+    if (currentPage === "people") {
+      itemData.known_for.forEach((movie) => {
+        const movieDiv = document.createElement("div");
+        movieDiv.classList.add("movie-div");
+        movieDiv.innerHTML = `
+          <img src=https://image.tmdb.org/t/p/w300${movie.backdrop_path} />
+          <p><strong>${
+            movie.media_type === "movie" ? movie.title : movie.name
+          }</strong></p>
+        `;
+        const modalContent = document.querySelector(".modal-content");
+        modalContent.append(movieDiv);
+      });
+    }
+    const modalClose = document.querySelector(".close-button");
+    modalClose.addEventListener("click", () => {
+      closeModal();
+    });
+  } else {
+    modal.close();
+  }
+});
+
+function showModal() {
+  setModalState(true);
+}
+
+function closeModal() {
+  setModalState(false);
 }
